@@ -1,21 +1,30 @@
-const express = require('express')
-const path = require('path')
-const webpack = require('webpack')
-const logger = require('../build/lib/logger')
-const webpackConfig = require('../build/webpack.config')
-const project = require('../project.config')
-const compress = require('compression')
+const
+    express       = require('express'),
+    path            = require('path'),
+    webpack         = require('webpack'),
+    logger          = require('../build/lib/logger'),
+    webpackConfig   = require('../build/webpack.config'),
+    project         = require('../project.config'),
+    compress        = require('compression'),
+    routes          = require('./routes'),
+    bodyParser      = require('body-parser'),
+    config          = require('./config/development'),
+    mongoose        = require('mongoose'),
+    app             = express();
 
-const app = express()
 app.use(compress())
+
+
 
 // ------------------------------------
 // Apply Webpack HMR Middleware
 // ------------------------------------
 if (project.env === 'development') {
   const compiler = webpack(webpackConfig)
-
+  let db = {};
   logger.info('Enabling webpack development and HMR middleware')
+  app.use(bodyParser.urlencoded({ extended: false }))
+  app.use(bodyParser.json())
   app.use(require('webpack-dev-middleware')(compiler, {
     publicPath  : webpackConfig.output.publicPath,
     contentBase : path.resolve(project.basePath, project.srcDir),
@@ -28,27 +37,27 @@ if (project.env === 'development') {
   app.use(require('webpack-hot-middleware')(compiler, {
     path: '/__webpack_hmr'
   }))
+    //connection to db
+  db.mongodb = mongoose.connect(config.mongodb.uri, config.mongodb.options, function(err) {
+    if (err) {
+        console.error('Could not connect to MongoDB!');
+        console.log(err);
+    } else {
+        console.log('Successfully connected to DB');
+    }
+  });
 
+    db.mongodb.connection.on('error', function(err) {
+        console.error('MongoDB connection error: ' + err);
+        throw 'MongoDB connection error';
+    });
   // Serve static assets from ~/public since Webpack is unaware of
   // these files. This middleware doesn't need to be enabled outside
   // of development since this directory will be copied into ~/dist
   // when the application is compiled.
   app.use(express.static(path.resolve(project.basePath, 'public')))
 
-  // This rewrites all routes requests to the root /index.html file
-  // (ignoring file requests). If you want to implement universal
-  // rendering, you'll want to remove this middleware.
-  app.use('*', function (req, res, next) {
-    const filename = path.join(compiler.outputPath, 'index.html')
-    compiler.outputFileSystem.readFile(filename, (err, result) => {
-      if (err) {
-        return next(err)
-      }
-      res.set('content-type', 'text/html')
-      res.send(result)
-      res.end()
-    })
-  })
+  app.use('/', routes);
 } else {
   logger.warn(
     'Server is being run outside of live development mode, meaning it will ' +
