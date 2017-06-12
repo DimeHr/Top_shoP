@@ -1,14 +1,14 @@
 const
-    express       = require('express'),
+    express         = require('express'),
     path            = require('path'),
     webpack         = require('webpack'),
     logger          = require('../build/lib/logger'),
     webpackConfig   = require('../build/webpack.config'),
     project         = require('../project.config'),
     compress        = require('compression'),
-    routes          = require('./routes'),
     bodyParser      = require('body-parser'),
-    config          = require('./config/development'),
+    devConfig       = require('./config/development'),
+    config          = require('./config/config'),
     mongoose        = require('mongoose'),
     app             = express();
 
@@ -38,7 +38,7 @@ if (project.env === 'development') {
     path: '/__webpack_hmr'
   }))
     //connection to db
-  db.mongodb = mongoose.connect(config.mongodb.uri, config.mongodb.options, function(err) {
+  db.mongodb = mongoose.connect(devConfig.mongodb.uri, devConfig.mongodb.options, function(err) {
     if (err) {
         console.error('Could not connect to MongoDB!');
         console.log(err);
@@ -57,7 +57,9 @@ if (project.env === 'development') {
   // when the application is compiled.
   app.use(express.static(path.resolve(project.basePath, 'public')))
 
-  app.use('/', routes);
+    config.getGlobbedFiles(path.resolve(__dirname + '/routes/**/*.js')).forEach(function(routePath) {
+        require(path.resolve(routePath))(app);
+    });
 } else {
   logger.warn(
     'Server is being run outside of live development mode, meaning it will ' +

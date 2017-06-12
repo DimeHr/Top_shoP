@@ -1,16 +1,16 @@
 'use strict'
 
-const User = require("../models/User")
+const Product = require("../models/product.server.model")
 
-module.exports ={
+module.exports = {
     create(req, res) {
-        User.create(req.body, (err, user) => {
+        Product.create(req.body, (err, user) => {
             if (err) return res.status(500).send('Something broke!')
             return res.send(user)
         })
     },
     find(req, res) {
-        User.find().exec((err, users) => {
+        Product.find().exec((err, users) => {
             if (err) return res.status(500).send('Something broke!')
             return res.send(users)
         })
