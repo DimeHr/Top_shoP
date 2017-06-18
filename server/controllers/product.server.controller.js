@@ -12,7 +12,7 @@ module.exports = {
     find(req, res) {
         Product.find().exec((err, users) => {
             if (err) return res.status(500).send('Something broke!')
-            return res.send(users)
+            return res.send(users);
         })
     }
 }

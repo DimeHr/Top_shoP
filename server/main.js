@@ -40,15 +40,15 @@ if (project.env === 'development') {
     //connection to db
   db.mongodb = mongoose.connect(devConfig.mongodb.uri, devConfig.mongodb.options, function(err) {
     if (err) {
-        console.error('Could not connect to MongoDB!');
-        console.log(err);
+        logger.error('Could not connect to MongoDB!');
+        logger.log(err);
     } else {
-        console.log('Successfully connected to DB');
+        logger.info('Successfully connected to DB');
     }
   });
 
     db.mongodb.connection.on('error', function(err) {
-        console.error('MongoDB connection error: ' + err);
+        logger.error('MongoDB connection error: ' + err);
         throw 'MongoDB connection error';
     });
   // Serve static assets from ~/public since Webpack is unaware of
