@@ -63,6 +63,10 @@ Hot reloading is enabled by default when the application is running in developme
 
 * For **Sass**, any change will update the styles in realtime, no additional configuration or reload needed.
 
+### Server Reloading 
+
+If you want your server react to your changes in development mode execute `npm install -g node-dev` before `npm start`
+
 ### Redux DevTools
 
 **We recommend using the [Redux DevTools Chrome Extension](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd).**
