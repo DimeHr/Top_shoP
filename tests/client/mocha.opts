@@ -1,4 +1,0 @@
---require ignore-styles
---require ./tests/client/setup.js
---recursive
-./client/**/*.spec.{js,jsx}
