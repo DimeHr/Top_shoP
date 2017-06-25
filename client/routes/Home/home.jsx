@@ -21,7 +21,7 @@ class Home extends React.Component {
     }
     render() {
         return (
-            <h1>Homeы page</h1>
+            <h1>Home page</h1>
         );
     }
 }
